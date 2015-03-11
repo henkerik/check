@@ -1,6 +1,6 @@
 package nl.henkerikvanderhoek.check
 
-case class Gen[A](run: RNG => (A,RNG)) {
+case class Gen[+A](run: RNG => (A,RNG)) {
   def map[B](f: A => B):Gen[B] = Gen { rng =>
     run(rng) match { case (a,next) => (f(a), next) }
   }
@@ -25,12 +25,20 @@ object Gen {
   def frequency[A](xs:List[(Int,Gen[A])]):Gen[A] =
     oneOf { xs.map { case (n, gen) => List.fill(n)(gen) }.flatten }
 
+  def repeat[A](n:Gen[Int])(gen:Gen[A]):Gen[List[A]] =
+    n.flatMap { n => sequence { List.fill(n)(gen) } }
+
+  def sequence[A](xs:List[Gen[A]]):Gen[List[A]] = xs match {
+    case Nil   => Gen(Nil)
+    case x::xs => x.flatMap { a => sequence(xs).map { as => a::as }}
+  }
+
   private val unsigned:Gen[Int] =
     Gen { rng =>  rng.nextInt }
 
   private val signed:Gen[Int] =
-    unsigned.map { i => if (i < 0) -(i + 1) else i }
+    unsigned.map { i =>  if (i < 0) -(i + 1) else i }
 
   private val probability:Gen[Double] =
-    signed.map { i => i / (Int.MaxValue.toLong + 1) }
+    signed.map { i => (i:Double) / Int.MaxValue }
 }

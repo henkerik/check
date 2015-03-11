@@ -2,6 +2,7 @@ package nl.henkerikvanderhoek.check
 
 import scala.util.Random
 
+// See functional programming in Scala, part 4.
 sealed trait IO[A] {
   def map[B](f: A => B):IO[B] = flatMap(f andThen (Return(_)))
 

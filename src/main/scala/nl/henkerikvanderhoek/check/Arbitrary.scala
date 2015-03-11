@@ -5,7 +5,7 @@ trait Arbitrary[A] {
 }
 
 object Arbitrary {
-  def apply[A](implicit e:Arbitrary[A]):Arbitrary[A] = e
+  def apply[A:Arbitrary]:Arbitrary[A] = implicitly[Arbitrary[A]]
 
   implicit def ArbitraryChar = new Arbitrary[Char] {
     def arbitrary:Gen[Char] = Gen.elements { ('a' until 'z').toList }

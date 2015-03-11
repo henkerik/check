@@ -19,7 +19,7 @@ object Check {
       result match {
         case Success(arguments) => IO.printLine("Successfully passed " + n + " tests")
         case Failure(arguments) => {
-          val x = arguments.zipWithIndex.map { case (argument, index) => index + ": " + argument}.mkString("\n")
+          val x = arguments.zipWithIndex.map { case (argument, index) => index + ": " + argument.toString }.mkString("\n")
           IO.printLine("Counter example found: " + x)
         }
       }
