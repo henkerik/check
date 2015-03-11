@@ -28,8 +28,8 @@ object Testable {
 
   implicit def TestableFunction[A:Arbitrary, B:Testable] = new Testable[A => B] {
     def test(f: A => B):Gen[Result] = for {
-        a <- Arbitrary[A].arbitrary
-        r <- Testable[B].test(f(a))
-      } yield r.addArg (a)
+      a <- ???
+      r <- ???
+    } yield ???
   }
 }
