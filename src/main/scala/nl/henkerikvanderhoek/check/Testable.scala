@@ -15,30 +15,21 @@ object Result {
     else   { Failure(List.empty) }
 }
 
-case class Property (result: Gen[Result])
-
-object Property {
-  def apply(b:Boolean):Property =
-    new Property(Gen(Result(b)))
-}
-
 trait Testable[A] {
-  def property(a:A):Property
+  def test(a:A):Gen[Result]
 }
 
 object Testable {
   def apply[A:Testable]:Testable[A] = implicitly[Testable[A]]
 
   implicit def TestableBoolean = new Testable[Boolean] {
-    def property(b: Boolean):Property = Property (b)
+    def test(b: Boolean):Gen[Result] = Gen(Result(b))
   }
 
   implicit def TestableFunction[A:Arbitrary, B:Testable] = new Testable[A => B] {
-    def property(f: A => B):Property = Property {
-      for {
+    def test(f: A => B):Gen[Result] = for {
         a <- Arbitrary[A].arbitrary
-        r <- Testable[B].property(f(a)).result
+        r <- Testable[B].test(f(a))
       } yield r.addArg (a)
-    }
   }
 }
